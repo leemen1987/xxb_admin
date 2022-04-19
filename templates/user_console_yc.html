@@ -1,0 +1,102 @@
+{% extends 'index.html' %}
+{% block page-css %}
+    <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+{% endblock %}
+{% block page-js %}
+    <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+{% endblock %}
+
+{% block user_console_yc %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">用户授权</h3>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>openid</th>
+                                    <th>姓名</th>
+                                    <th>部门</th>
+                                    <th>电话</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for ret in result %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ ret.openid }}</td>
+                                        <td>{{ ret.user_name }}</td>
+                                        <td>{{ ret.line }}</td>
+                                        <td>{{ ret.tel }}</td>
+                                        {% if ret.activation == 'pass' %}
+                                            <td style="color: chartreuse;text-align: center !important;">pass</td>
+                                        {% else %}
+                                            <td style="color: red;text-align: center !important;">ban</td>
+                                        {% endif %}
+                                        {% if ret.activation == 'pass' %}
+                                            <td style="text-align: center !important;">
+                                                <button type="button" class="btn btn-danger btn-sm" id="pass_ban"
+                                                        openid="{{ ret.openid }}" edit_tpye="0" onclick="get_openid(this)">禁用
+                                                </button>
+                                            </td>
+                                        {% else %}
+                                            <td style="text-align: center !important;">
+                                                <button type="button" class="btn btn-success btn-sm" id="pass_ban"
+                                                        openid="{{ ret.openid }}" edit_tpye="1" onclick="get_openid(this)">激活
+                                                </button>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function get_openid(obj) {
+            if ($(obj).attr("edit_tpye") === "0") {
+                    var edit_tpye = 'ban'
+                } else {
+                    var edit_tpye = 'pass'
+                }
+                console.log(edit_tpye);
+                var url = '/pass_ban_yc';
+                var params = {
+                    'edit_tpye': edit_tpye,
+                    'openid': $(obj).attr("openid")
+                };
+                $.ajax({
+                    type: "GET",
+                    async: false,     //设为同步请求（异步加载的话后面的遍历方法获取不到option）
+                    url: url,
+                    data: params,
+                    success: function (data) {
+                        if (data === 'done') {
+                            alert('提交成功');
+                            window.location.replace("https://www.leemen.top/user_console_yc");
+                        } else {
+                            console.log(data)
+                        }
+                    }
+                })
+        }
+    </script>
+{% endblock %}
+

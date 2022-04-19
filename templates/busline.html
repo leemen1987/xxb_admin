@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="leemen">
+    <meta name="author" content="leemen">
+
+    <title>开平公交线路查询</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="/static/metisMenu/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/static/main/css/sb-admin-2.css" rel="stylesheet">
+    <!-- Morris Charts CSS -->
+    <!--<link href="../vendor/morrisjs/morris.css" rel="stylesheet">-->
+    <!-- Custom Fonts -->
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" href="/static/busline/time-axis.css">
+    <!-- jQuery -->
+    <script src="/static/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="/static/metisMenu/metisMenu.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="/static/main/js/sb-admin-2.js"></script>
+
+
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row" style="padding:20px;display: flex;flex-direction: row;flex-wrap: nowrap;justify-content:center;">
+            <form action="/busline/" method="post" class="bs-example bs-example-form" >
+                {% csrf_token %}
+                <div class="row">
+                <div class="col-sm-8 col-xs-8">
+                    <select class="form-control" id="c_busline" name="line">
+
+                    </select>
+                </div>
+                <div class="col-sm-4 col-xs-4" style="padding-bottom: 2px;">
+                    <button type="submit" class="btn btn-primary" id="btnsearch">🔍查询</button>
+                </div>
+                </div>
+            </form>
+        </div>
+        <div class="main" style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content:center;">
+            <ul class="time-axis">
+
+            </ul>
+        </div>
+    </div>
+    <script type="text/javascript">
+
+        function c_busline() {
+            $.ajax({
+                type: "GET",
+                async: false,     //设为同步请求（异步加载的话后面的遍历方法获取不到option）
+                url: "/select_busline/",//获取option值得方法返回LIST<String>类型 
+                success: function (data) {
+                    var j_data = JSON.parse(data)
+                    for (var i in j_data) {        //遍历输出LIST添加为option     
+                        $("#c_busline").append("<option value='" + j_data[i] + "'>" + j_data[i] + "</option>");
+                    }
+                }
+            });
+        }
+
+        function bus_line() {
+            var s_data = {
+                'select': $("#c_busline").val(),
+            };
+            $.ajax({
+                type: "POST",
+                async: false,     //设为同步请求
+                url: "/get_road_line_info/",
+                data: s_data,
+                success: function (data) {
+                    var busline = JSON.parse(data);
+                    $.each(busline, function (i, e) {
+                        var html = '<li class="time-axis-item">' +
+                            '<div class="time-axis-date">' + e.name + '</div>' +
+                            '<div class="time-axis-date ' + e.id + '">&nbsp;<span></span></div>' +
+                            '<div class="time-axis-title" id=' + e.id + '>&nbsp;</div>' +
+                            '<p class="time-axis-achievement ' + e.id + '">' + e.achievement + '</p>' +
+                            '</li>';
+                        $('.time-axis').append(html);
+                    });
+
+                }
+            });
+        }
+
+        function bus_stop() {
+            var s_data = {
+                'select': $("#c_busline").val(),
+            };
+            $.ajax({
+                type: "POST",
+                async: false,     //设为同步请求
+                url: "/get_bus_status_info/",
+                data: s_data,
+                success: function (data) {
+
+                    var busstop = JSON.parse(data)
+                    $.each(busstop, function (i, c) {
+                        var class1 = 'bus-stop';
+                        var html1 = '<i class="fa fa-bus fa-2x fa-fix"></i>';
+                        $('.' + c.id).addClass(class1);
+                        $('#' + c.id).html(html1)
+                    })
+                }
+            });
+        }
+
+        function clean() {
+            $("li.time-axis-item").remove();
+            $("i.fa.fa-bus.fa-2x.fa-fix").remove();
+            $(".bus-stop").removeClass("bus-stop");
+        }
+
+        $(function () {
+            c_busline();
+            if (sessionStorage.getItem('c_busline')) {  //刷新保留select值
+                $("#c_busline option").eq(sessionStorage.getItem('c_busline')).prop('selected', true);
+            }
+            $("#c_busline").on('change', function () {
+                sessionStorage.setItem('c_busline', $('option:selected', this).index());
+            });
+            bus_line();
+            bus_stop();
+            setInterval(function () {
+                clean();
+                bus_line();
+                bus_stop();
+            }, 9000);
+        });
+    </script>
+</body>

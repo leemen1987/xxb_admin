@@ -1,0 +1,87 @@
+body{
+	margin: 0;
+	padding: 0;
+}
+
+.main{
+	width: 50%;
+	margin: 30px auto;
+}
+
+.time-axis{
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+.time-axis:before{
+	content: '';
+	position: absolute;
+	left: 93px;
+	top: 15px;
+	width: 2px;
+	height: 100%;
+	background-color: #E4E4E4;
+}
+.time-axis-item{
+	list-style: none;
+	padding-left: 130px;
+	position: relative;
+	line-height: 45px;
+	font-size: 14px;
+	color: #141414;
+}
+.time-axis-achievement{
+	margin: 0;
+}
+.time-axis-date{
+	position: absolute;
+	left: 0;
+	top: 0;
+	color: #666;
+}
+
+.time-axis-date span{
+	position: absolute;
+	right: -97px;
+	top: 35%;
+	display: block;
+	width: 13px;
+	height: 13px;
+	border: 2px solid #ccc;
+	border-radius: 100%;
+	background-color: #fff;
+}
+.time-axis-date span:after{
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 7px;
+	height: 7px;
+	margin: auto;
+	background-color: #ccc;
+	border: 1px solid #ccc;
+	border-radius: 100%;
+}
+
+.bus-stop span{
+	border-color: #e77817;
+    width: 13px;
+	height: 13px;
+    right: -97px;
+}
+
+.bus-stop span:after{
+	background-color: #e77817;
+	border-color: #e77817;
+    width: 7px;
+	height: 7px;
+}
+
+.fa-fix {
+	margin-top: 10px;
+	color: #e77817;
+}

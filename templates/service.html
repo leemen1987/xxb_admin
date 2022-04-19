@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="leemen">
+    <meta name="author" content="leemen">
+
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'images/leemen_ico.ico' %}" type="image/x-icon">
+
+    <title>开平市公共汽车总公司</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- bootstrap-fileinput -->
+    <link href="/static/fileinput/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css"/>
+
+    <!-- jQuery -->
+    <script src="/static/fileinput/js/jquery-3.3.1.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap BV -->
+    <link href="/static/bv/css/bootstrapValidator.min.css" rel="stylesheet">
+    <script src="/static/bv/js/bootstrapValidator.min.js"></script>
+
+    {% block page-css %}
+        <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+    {% endblock %}
+    {% block page-js %}
+        <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+        <script type="text/javascript"
+                src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+    {% endblock %}
+
+    <!-- bootstrap-fileinput -->
+    <script src="/static/fileinput/js/sortable.min.js" type="text/javascript"></script>
+    <script src="/static/fileinput/js/piexif.min.js" type="text/javascript"></script>
+    <script src="/static/fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/static/fileinput/js/zh.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            var height = $("#nav").height();
+            $("#service_form").css("margin-top", height + 10 + 'px');
+            $('#service_form').bootstrapValidator({
+                message: 'This value is not valid',
+                //提供输入验证图标提示
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    name: {
+                        validators: {
+                            notEmpty: {
+                                message: '姓名不能为空'
+                            },
+                        }
+                    },
+                    phone_num: {
+                        validators: {
+                            notEmpty: {
+                                message: '手机号码不能为空'
+                            },
+                        }
+                    },
+                    line: {
+                        validators: {
+                            notEmpty: {
+                                message: '公交线路不能为空'
+                            },
+                        }
+                    },
+                    car_num: {
+                        validators: {
+                            notEmpty: {
+                                message: '车辆编号不能为空'
+                            },
+                        }
+                    },
+                    opinion: {
+                        validators: {
+                            notEmpty: {
+                                message: '信访内容不能为空'
+                            },
+                        }
+                    },
+                    happen_date: {
+                        validators: {
+                            notEmpty: {
+                                message: '请选择事发时间',
+                            },
+                        }
+                    },
+                    start_stop: {
+                        validators: {
+                            notEmpty: {
+                                message: '上车站点不能为空',
+                            },
+                        }
+                    },
+                    end_stop: {
+                        validators: {
+                            notEmpty: {
+                                message: '下车站点不能为空',
+                            },
+                        }
+                    },
+                }
+            });
+        });
+
+        function uploadData() {
+            $('#service_form').data("bootstrapValidator").validate();
+            var flag = $('#service_form').data("bootstrapValidator").isValid();
+            if (flag) {
+                var form = document.forms.namedItem("service_data");
+                var service_data = new FormData(form);
+                $('#myModal').modal({
+                    show: true,
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $.ajax({
+                    type: "POST",
+                    url: "/upload_file/",
+                    data: service_data,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        if (res.receive === 'complete') {
+                            $('#myModal').modal('hide');
+                            $('#msg').text('您好,数据提交成功!');
+                            $('#msg_Modal').modal({
+                                show: true,
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                        } else {
+                            $('#myModal').modal('hide');
+                            $('#msg').text('您有3条记录未回复,请等待回复后再提交!');
+                            $('#msg_Modal').modal({
+                                show: true,
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                        }
+                    }
+                })
+            } else {
+                console.log('error')
+            }
+        }
+
+        function upload_confirm() {
+            window.location.href = "/my_service?openid={{ openid }}";
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="nav">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target="#example-navbar-collapse">
+                    <span class="sr-only">切换导航</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#" style="color: white"><strong>开平公交投诉/建议</strong></a>
+            </div>
+            <div class="collapse navbar-collapse" id="example-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">投诉/建议</a></li>
+                    <li><a href="/my_service?openid={{ openid }}">受理进度</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <form class="form-horizontal" role="form" method="post" enctype="multipart/form-data" name="service_data"
+          id="service_form">
+        <input type="text" id="openid" name="openid" style="display: none" value={{ openid }}>
+        <div class="form-group">
+            <label for="name" class="col-sm-2 control-label">您的名字</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="name" name="name" placeholder="请输入您的名字">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="phone_num" class="col-sm-2 control-label">手机号码</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="phone_num" name="phone_num" placeholder="请输入您的手机号码">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="line" class="col-sm-2 control-label">公交线路</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="line" name="line" placeholder="请输入公交线路">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="car_num" class="col-sm-2 control-label">车辆编号</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="car_num" name="car_num" placeholder="请输入车辆编号或者车牌号码">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="happen_date" class="col-sm-2 control-label">事发时间</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="happen_date" name="happen_date" placeholder="请您选择事发时间"
+                       readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="start_stop" class="col-sm-2 control-label">上车站点</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="start_stop" name="start_stop" placeholder="请输入上车站点">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="end_stop" class="col-sm-2 control-label">下车站点</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="end_stop" name="end_stop" placeholder="请输入下车站点">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="opinion" class="col-sm-2 control-label">信访内容</label>
+            <div class="col-sm-10">
+                <textarea class="form-control" rows="4" id="opinion" name="opinion" placeholder="请输入信访内容或提出的意见"
+                          style="resize: none"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputfile" class="col-sm-2 control-label">请上传视频或图片</label>
+            <div class="col-sm-10">
+                <input multiple type="file" id="inputfile" name="upload_file" class="file-loading">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button" class="btn btn-primary btn-lg btn-block" onclick="uploadData();">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" style="margin-top: 30%;">
+        <div class="span">
+            <div class="timer"></div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<div class="modal fade" id="msg_Modal" tabindex="-1" role="dialog" aria-labelledby="successLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body center-block" id="msg"></div>
+            <div class="modal-footer center-block">
+                <button type="button" class="btn btn-primary btn-lg btn-block" onclick="upload_confirm();">确定</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+<script type="text/javascript">
+    $('#inputfile').fileinput({
+        language: 'zh', //设置语言
+        allowedFileExtensions: ['jpg', 'mp4'],//接收的文件后缀,
+        maxFileCount: 2,
+        overwriteInitial: false,
+        initialPreviewAsData: true,
+        initialPreviewShowDelete: true,
+        dropZoneEnabled: false,
+        maxFileSize: 7 * 1024,
+        previewFileType: ['image', 'video'],
+        showUpload: false, //是否显示上传按钮
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}!",
+    });
+</script>
+<script type="text/javascript">
+    $("#happen_date").datetimepicker({
+        language: "zh-CN",
+        startView: 2,
+        minView: 0,
+        minuteStep: 5,
+        format: "yyyy-mm-dd hh:ii",
+        autoclose: true,
+        todayBtn: false,
+        pickerPosition: "bottom-left",
+    });
+    $("#happen_date").datetimepicker().on('changeDate', function () {
+        $('#service_form').data("bootstrapValidator").updateStatus('happen_date', 'NOT_VALIDATED').validateField('happen_date')
+    })
+</script>
+<style type="text/css">
+    /* Timer*/
+    .timer {
+        width: 24px;
+        height: 24px;
+        background-color: transparent;
+        box-shadow: inset 0px 0px 0px 2px #fff;
+        border-radius: 50%;
+        position: relative;
+        margin: 38px auto; /* Not necessary- its only for layouting*/
+    }
+
+    .timer:after, .timer:before {
+        position: absolute;
+        content: "";
+        background-color: #fff;
+    }
+
+    .timer:after {
+        width: 10px;
+        height: 2px;
+        top: 11px;
+        left: 11px;
+        -webkit-transform-origin: 1px 1px;
+        -moz-transform-origin: 1px 1px;
+        transform-origin: 1px 1px;
+        -webkit-animation: minhand 2s linear infinite;
+        -moz-animation: minhand 2s linear infinite;
+        animation: minhand 2s linear infinite;
+    }
+
+    .timer:before {
+        width: 8px;
+        height: 2px;
+        top: 11px;
+        left: 11px;
+        -webkit-transform-origin: 1px 1px;
+        -moz-transform-origin: 1px 1px;
+        transform-origin: 1px 1px;
+        -webkit-animation: hrhand 8s linear infinite;
+        -moz-animation: hrhand 8s linear infinite;
+        animation: hrhand 8s linear infinite;
+    }
+
+    @-webkit-keyframes minhand {
+        0% {
+            -webkit-transform: rotate(0deg)
+        }
+        100% {
+            -webkit-transform: rotate(360deg)
+        }
+    }
+
+    @-moz-keyframes minhand {
+        0% {
+            -moz-transform: rotate(0deg)
+        }
+        100% {
+            -moz-transform: rotate(360deg)
+        }
+    }
+
+    @keyframes minhand {
+        0% {
+            transform: rotate(0deg)
+        }
+        100% {
+            transform: rotate(360deg)
+        }
+    }
+
+    @-webkit-keyframes hrhand {
+        0% {
+            -webkit-transform: rotate(0deg)
+        }
+        100% {
+            -webkit-transform: rotate(360deg)
+        }
+    }
+
+    @-moz-keyframes hrhand {
+        0% {
+            -moz-transform: rotate(0deg)
+        }
+        100% {
+            -moz-transform: rotate(360deg)
+        }
+    }
+
+    @keyframes hrhand {
+        0% {
+            transform: rotate(0deg)
+        }
+        100% {
+            transform: rotate(360deg)
+        }
+    }
+</style>
+</html>

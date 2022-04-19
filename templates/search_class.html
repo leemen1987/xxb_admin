@@ -1,0 +1,91 @@
+{%  extends 'index.html' %}
+{% block page-css %}
+    <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+{% endblock %}
+{% block page-js %}
+    <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+{% endblock %}
+{% block search_class %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">课程统计</h3>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:20px;">
+            <form action="/get_search/" method="post" class="bs-example bs-example-form">
+                <div class="col-sm-2">
+                    <select class="form-control" id="type" name="class_name">
+                        <option value="0">思栢</option>
+                        <option value="1">星动</option>
+                        <option value="2">俏丽人</option>
+                    </select>
+                </div>
+                <div class="col-sm-2" style="padding-bottom: 2px;">
+                    <input type="word" class="form-control form_datetime" style="background-color: #ECECEC" placeholder="选择开始日期" id="day1" value="" name="start_date" readonly>
+                </div>
+                <div class="col-sm-2" style="padding-bottom: 2px;">
+                    <input type="word" class="form-control form_datetime" style="background-color: #ECECEC" placeholder="选择截止日期" id="day2" value="" name="end_date" readonly>
+                </div>
+                <div class="col-sm-1" style="padding-bottom: 2px;">
+                    <button type="submit" class="btn btn-primary" id="btnsearch">🔍查询</button>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>Search Result</h3>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>课程地点</th>
+                                    <th>上课日期</th>
+                                    <th>课程时长</th>
+                                    <th>课时费</th>
+                                </tr>
+                            </thead>
+                                    <tbody>
+                                    {% for ret in result %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ ret.event_name }}</td>
+                                            <td>{{ ret.start_date|date:"Y年m月d日" }}</td>
+                                            <td>{{ ret.start_time }} - {{ ret.end_time }}</td>
+                                            <td>{{ ret.price }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td><strong>课程总数</strong></td>
+                                        <td>{{ c_result }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>课时费总计</strong></td>
+                                        <td>{{ c_price.price__sum }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <script type="text/javascript">
+        $(".form_datetime").datetimepicker({
+            language:"zh-CN",
+            startView:3,
+            minView:2,
+            minuteStep:5,
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayBtn: false,
+            pickerPosition: "bottom-left"
+        });
+    </script>
+{% endblock %}
+

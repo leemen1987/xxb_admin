@@ -1,0 +1,266 @@
+{% extends 'index.html' %}
+
+{% block page-css %}
+    <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+{% endblock %}
+{% block page-js %}
+    <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript"
+            src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+{% endblock %}
+
+{% block reply_service %}
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('#myTab li:eq(1) a').tab('show');
+            var height = $("#nav").height();
+            $("#myTab").css("margin-top", height + 10 + 'px')
+        });
+
+        function reply(obj) {
+            uid = obj.name;
+            $('#reply_Modal').modal({
+                show: true,
+                backdrop: 'static',
+                keyboard: false
+            });
+        }
+
+        function reply_confirm() {
+            var uid_data = uid;
+            var reply_data = $("#reply_data").val();
+            if (reply_data === '') {
+                alert('请输入回复内容!')
+            } else {
+                $.ajax({
+                    type: "POST",
+                    headers: {"X-CSRFToken": $.cookie("csrftoken")},
+                    url: "/upload_reply/",
+                    data: {"uid_data": uid_data, "reply_data": reply_data},
+                    success: function (res) {
+                        if (res === 'done') {
+                            window.location.reload();
+                        } else {
+                            alert('服务器出错,请于管理员联系!')
+                        }
+                    }
+                })
+            }
+        }
+
+        function check_confirm(obj) {
+            var click_id = '#' + $(obj).parents('.fade').attr('id');
+            if (click_id === '#opend_video') {
+
+                $('#video_open').trigger('pause')
+            }
+            $(click_id).modal('hide');
+        }
+
+        function check_open(obj) {
+            var uid = obj.name;
+            $.ajax({
+                type: "GET",
+                url: "/check_open/" + "?uid=" + uid,
+                async: false,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    if (res.file === 'img') {
+                        var img_url = '/media/' + res.src;
+                        $('#res_img').attr('src', img_url);
+                        $('#opend_img').modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                    } else if (res.file === 'video') {
+                        var video_url = '/media/' + res.src;
+                        $('#res_video').attr('src', video_url);
+                        $('#opend_video').modal({
+                            show: true,
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                    } else {
+                        alert('用户没有上传视频/图片')
+                    }
+                }
+            });
+
+        }
+    </script>
+
+    <div class="container-fluid" style="padding-bottom: 5%">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">乘客投诉/建议</h3>
+            </div>
+        </div>
+        {% if service_data == 'empty' %}
+            <div class="row text-center" style="margin-top: 25%;">
+                <p><code>提示</code> 还没收到任何投诉。</p>
+            </div>
+        {% else %}
+            <ul id="myTab" class="nav nav-tabs" style="margin-bottom: 10px;">
+                <li class="active"><a href="#home" data-toggle="tab">已回复投诉</a></li>
+                <li><a href="#ios" data-toggle="tab">未回复投诉</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade in active" id="home">
+                    {% if service_data == 'no_reply' %}
+                        <div class="row text-center">
+                            <p><code>提示</code> 没有回复任何投诉!</p>
+                        </div>
+                    {% else %}
+                        {% for i in service_data %}
+                            <ul class="list-group">
+                                <a href="#" class="list-group-item active">
+                                    <h4 class="list-group-item-heading">
+                                        系统编号:{{ i.system_id }}
+                                    </h4>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <h4 class="list-group-item-heading">
+                                        投诉/建议内容:{{ i.opinion }}
+                                    </h4>
+                                    <p class="list-group-item-text">
+                                        公交线路:{{ i.line }} &nbsp 车辆编号:{{ i.car_num }} &nbsp 事发时间:{{ i.happen_date }} <br>
+                                        上车站点:{{ i.start_stop }} &nbsp 下车站点:{{ i.end_stop }}
+                                    </p>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <h4 class="list-group-item-heading" style="color: red">
+                                        已回复:{{ i.reply }}
+                                    </h4>
+                                </a>
+                                <div class="list-group-item">
+                                    <button type="button" class="btn btn-info" onclick="check_open(this)"
+                                            name={{ i.id }}>
+                                        查看图片/视频
+                                    </button>
+                                </div>
+                            </ul>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+
+                <div class="tab-pane fade" id="ios">
+                    {% if wait_reply == 'no_data' %}
+                        <div class="row text-center">
+                            <p><code>提示</code> 没有需要回复的投诉!</p>
+                        </div>
+                    {% else %}
+                        {% for i in wait_reply %}
+                            <ul class="list-group">
+                                <a href="#" class="list-group-item active">
+                                    <h4 class="list-group-item-heading">
+                                        系统编号:{{ i.system_id }}
+                                    </h4>
+                                </a>
+                                <a href="#" class="list-group-item">
+                                    <h4 class="list-group-item-heading">
+                                        投诉/建议内容:{{ i.opinion }}
+                                    </h4>
+                                    <p class="list-group-item-text">
+                                        公交线路:{{ i.line }} &nbsp 车辆编号:{{ i.car_num }} &nbsp 事发时间:{{ i.happen_date }} <br>
+                                        上车站点:{{ i.start_stop }} &nbsp 下车站点:{{ i.end_stop }}
+                                    </p>
+                                </a>
+                                <div class="list-group-item">
+                                    <button type="button" class="btn btn-primary" onclick="reply(this)" name={{ i.id }}>
+                                        回复
+                                    </button>
+                                    <button type="button" class="btn btn-info" onclick="check_open(this)"
+                                            name={{ i.id }}>
+                                        查看图片/视频
+                                    </button>
+                                </div>
+                            </ul>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+        {% endif %}
+
+    </div>
+    <div class="modal fade" id="reply_Modal" tabindex="-1" role="dialog" aria-labelledby="successLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">回复内容</h4>
+                </div>
+                <textarea class="form-control modal-body" rows="4" id="reply_data" name="opinion" placeholder="请输入回复内容"
+                          style="resize: none; border-radius: 0;"></textarea>
+                <div class="modal-footer center-block">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="reply_confirm();">确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <div class="modal fade" id="opend_video" tabindex="-1" role="dialog" aria-labelledby="successLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">视频内容</h4>
+                </div>
+                <div class="modal-body center-block" id="msg">
+                    <video width=100% height=100% controls id="video_open">
+
+                        <source src="#" type="video/mp4" id="res_video">
+
+                    </video>
+                </div>
+                <div class="modal-footer center-block">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="check_confirm(this);">确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <div class="modal fade" id="opend_img" tabindex="-1" role="dialog" aria-labelledby="successLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">图片内容</h4>
+                </div>
+                <div class="modal-body" id="msg">
+                    <div class="row" style="display: flex; justify-content: center;margin-left: 1px;margin-right: 1px;">
+                        <img src="#" class="img-responsive" id="res_img">
+                    </div>
+                </div>
+                <div class="modal-footer center-block">
+                    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="check_confirm(this);">确定
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <script type="text/javascript">
+        $(".form_datetime").datetimepicker({
+            language: "zh-CN",
+            startView: 3,
+            minView: 2,
+            minuteStep: 5,
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayBtn: false,
+            pickerPosition: "bottom-left",
+            setStartDate: "2019-10-1",
+            setEndDate: "2019-10-30",
+        });
+    </script>
+{% endblock %}

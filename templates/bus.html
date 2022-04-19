@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="kpbus">
+    <meta name="author" content="kpbus">
+
+    <title>开平公交线路查询</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- main CSS -->
+    <link rel="stylesheet" href="/static/busline/mycss.css">
+    <link rel="stylesheet" href="/static/busline/time-axis.css">
+
+    <!-- Custom Fonts -->
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- jQuery -->
+    <script src="/static/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.15&key=43d6f3ecd0dabc870a136df8e2b2b14b&plugin=AMap.Transfer"></script> 
+    <script type="text/javascript">
+        
+  
+        
+    </script>
+    <script type="text/javascript">
+        function line() {
+            $.ajax({
+                type: "POST",
+                async: false, 
+                url: "/c_busline_new/",
+                success: function(data) {
+                    var busline = JSON.parse(data);
+                    $.each(busline, function(i, e) {
+                        var html1 = '<div class="row flex-row" roadtype="0"><div class="icons col-xs-2"><i class="fa fa-map-signs fa-2x"></i></div><div class="line-info col-xs-10"><div class="line-text"><b>';
+                        var html2 = '</b></div><div class="price-info">';
+                        var html3 = '</div></div></div><hr>';
+                        var html = html1 + e.line + html2 + e.info + html3;
+                        $('#line_main').append(html);
+                    });
+
+                }
+            });
+        };
+        
+        function bus_line_new() {
+            var s_data = {
+                'lname':$("#l_name").text(),
+                'roadtype':$("#l_name").attr("roadtype"),
+            };
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: "/get_road_line_info_new/",
+                data: s_data,
+                success: function (data) {
+                    var busline = JSON.parse(data);
+                    $.each(busline, function (i, e) {
+                        var html = '<li class="time-axis-item">' +
+                            '<div class="time-axis-date">' + e.name + '</div>' +
+                            '<div class="time-axis-date ' + e.id + '">&nbsp;<span></span></div>' +
+                            '<div class="time-axis-title" id=' + e.id + '>&nbsp;</div>' +
+                            '<p class="time-axis-achievement ' + e.id + '">' + e.achievement + '</p>' +
+                            '</li>';
+                        $('.time-axis').append(html);
+                    });
+                }
+            });
+        };
+        
+        function bus_stop_new() {
+            var s_data = {
+                'lname':$("#l_name").text(),
+                'roadtype':$("#l_name").attr("roadtype"),
+            };
+            $.ajax({
+                type: "POST",
+                async: false,
+                url: "/get_bus_status_info_new/",
+                data: s_data,
+                success: function (data) {
+                    var busstop = JSON.parse(data)
+                    $.each(busstop, function (i, c) {
+                        var class1 = 'bus-stop';
+                        var html1 = '<i class="fa fa-bus fa-2x fa-fix"></i>';
+                        $('.' + c.id).addClass(class1);
+                        $('#' + c.id).html(html1);
+                    })
+                }
+            });
+        };
+        
+        function clean() {
+            $("li.time-axis-item").remove();
+            $("i.fa.fa-bus.fa-2x.fa-fix").remove();
+            $(".bus-stop").removeClass("bus-stop");
+        };
+        
+        
+
+        $(function() {
+            stop_get = null;
+            stop_get2 = null;
+            $("#line_info").hide();
+            $("#line_search").hide();
+            var height = $("#nav").height();
+            $("#search").css("padding-top",height-15);
+            var height2 = $("#search").height();
+            $("#line_main").css("padding-top",height+height2-30);
+            
+            line();
+            
+            $("#dc_search").click(function(){
+                $("#panel").empty();
+                var map = new AMap.Map("container", {
+                    resizeEnable: true,
+                    center: [112.670753,22.372738],
+                    zoom: 13 
+                });
+                var startNode = $("#startNode").val();
+                var endNode = $("#endNode").val();
+                
+                var transOptions = {
+                    map: map,
+                    city: '开平市',
+                    panel: 'panel',
+                    policy: AMap.TransferPolicy.LEAST_TIME
+                };
+                var transfer = new AMap.Transfer(transOptions);
+                transfer.search([
+                    {keyword:startNode,city:'开平市'},
+                    
+                    {keyword:endNode,city:'开平市'}
+                    
+                ], function(status, result) {
+                   
+                    if (status === 'complete') {
+                        
+                    } else {
+                        console.log('error')
+                    }
+                });
+            });
+            
+            $("#btn_search").bind("input propertychange", function() {
+	            if($(this).val() !=""){
+                    if(isNaN(parseInt($(this).val()))==true | parseInt($(this).val())>32){
+                       var input = $(this).val()
+                       }
+                    if(parseInt($(this).val())<10 & parseInt($(this).val())!=3 & parseInt($(this).val())!=NaN) {
+                        var input = "60"+$(this).val()
+                    }
+                    if(parseInt($(this).val())>=10 & parseInt($(this).val())<=32 & parseInt($(this).val())!=NaN | parseInt($(this).val())==3){
+                        var input = "6"+$(this).val()
+                    }
+                   
+                   $(".flex-row").hide();
+                   $("hr").hide();
+                   $(".flex-row").filter(":contains('"+input+"')").show();
+                   $(".flex-row").filter(":contains('"+input+"')").next().show();
+               }else{
+                   $(".flex-row").show();
+                   $("hr").show();
+               }
+            });
+            
+            $("#q_gobus").click(function() {
+                $("#ac1").removeClass("active")
+                $("#q_gobus").addClass("active")
+                $("#search").hide();
+                $("#line_main").hide();
+                $("#line_info").hide();
+                $("#now_bus").hide();
+                $("#l_name").empty();
+                $("#l_info").empty();
+                $("#l_name").attr("roadtype","0")
+                $("#stop_main").css("margin-top",30)
+                $("#line_search").show();
+                $("#panel").show();
+                clean();
+                if(stop_get!=null){
+                    clearInterval(stop_get);
+                }
+                if(stop_get2!=null){
+                    clearInterval(stop_get2);
+                }
+            });
+            
+            $("#go_back,#ac1").click(function() {
+                $("#ac1").addClass("active")
+                $("#q_gobus").removeClass("active")
+                $("#now_bus").hide();
+                $("#line_search").hide();
+                $("#line_info").hide();
+                $("#search").css("top",30)
+                $("#stop_main").css("margin-top",30)
+                $("#l_name").empty();
+                $("#l_info").empty();
+                $("#l_name").attr("roadtype","0")
+                $("#search").show();
+                $("#line_main").show();
+                $("#container").hide();
+                $("#panel").hide();
+                clean();
+                if(stop_get!=null){
+                    clearInterval(stop_get);
+                } 
+                if(stop_get2!=null){
+                    clearInterval(stop_get2);
+                }
+            });
+            
+            $("#c_btn").click(function(){ 
+                var lname = $("#l_name").text();
+                if (lname=="631路 义祠站(华润万家.新昌方向)环线"|lname=="632路 义祠站(东汇城.祥龙方向)环线") {
+                    alert("此线路无需换向")
+                } else {
+                    clean();
+                    var a = $("#l_name").text().split(" ")[1].split("↔")[0]
+                    var b = $("#l_name").text().split(" ")[1].split("↔")[1]
+                    var l = $("#l_name").text().split(" ")[0]
+                    var t = l+" "+b+"↔"+a
+                    $("#l_name").text(t)
+                    var roadtype = $("#l_name").attr("roadtype");
+                    var change_type = roadtype == "0" ? "1" : (roadtype == "1" ? "0" : "1")
+                    $("#l_name").attr("roadtype",change_type)
+                    $("#now_bus").show();
+                    bus_line_new();
+                    bus_stop_new();
+                    stop_get = setInterval(function () {
+                        clean();
+                        bus_line_new();
+                        bus_stop_new();
+                    }, 9000);
+                } 
+            });
+            
+            $(".flex-row").click(function() {
+                clean();
+                $("#now_bus").empty();
+                $("#l_name").attr("roadtype","0");
+                $("#line_info").show();
+                var lname = $(this).find(".line-text").text();
+                var linfo = $(this).find(".price-info").text();
+                var html = "<b>"+lname+"</b>";
+                $("#line_info").css("padding-top",height+35);
+                $("#line_main,#search").hide();
+                $("#l_name").append(html);
+                $("#l_info").append(linfo);
+                var h1 = $("#line_info").height();
+                var h2 = $("#nav").height();
+                $("#stop_main").css("margin-top",h1+h2+45)
+                $("#now_bus").show();
+                bus_line_new();
+                bus_stop_new();
+                stop_get2 = setInterval(function () {
+                    clean();
+                    bus_line_new();
+                    bus_stop_new();
+                    }, 9000);
+                });
+            });
+            
+    </script>
+
+</head>
+
+<body>
+    <ul class="nav nav-tabs navbar-fixed-top" style="padding-top: 12px;" id="nav">
+        <li class="col-xs-6 active center" id="ac1"><a href="#">公交查询</a></li>
+        <li class="col-xs-6 center" id="q_gobus"><a href="#">导乘查询</a></li>
+    </ul>
+    <div class="container-fluid"  id="search">
+        <form class="bs-example bs-example-form search" role="form">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                <input type="text" class="form-control" placeholder="请输入公交线路" id="btn_search">
+            </div>
+        </form>
+    </div>
+    <div class="container-fluid" id="line_info" style="position:fixed;width:100%;opacity:1;z-index:1023;background-color:white;top:0;">
+            <div class="row busline-row">        
+                <div class="icons col-xs-2" id="go_back"><i class="fa fa-chevron-left fa-2x"></i></div>
+                <div class="line-info col-xs-8 bd">
+                    <div class="line-text" id="l_name" roadtype="0"></div>
+                    <div class="price-info" id="l_info"></div>
+                </div>
+                <div class="icons col-xs-4"><button type="button" class="btn btn-primary" id="c_btn"><i class="fa fa-refresh"></i> 换向</button></div>             
+            </div>         
+            <hr>
+    </div>
+        <div class="main" style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content:center;" id="stop_main">
+            <ul class="time-axis" id="now_bus">
+
+            </ul>
+        </div>
+    
+    <div class="container-fluid" id="line_main">
+
+    </div>
+    <div class="container" id="line_search" style="margin:20px;margin-top:30px;">
+       <div class="row" style="display: flex;flex-direction: row;flex-wrap: nowrap;justify-content:center;margin-top:15px;">
+        <form class="bs-example bs-example-form" role="form">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">起点站</span>
+                <input type="text" class="form-control" placeholder="请输入起点站..." id="startNode">
+            </div>
+            <br>
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">终点站</span>
+                <input type="text" class="form-control" placeholder="请输入终点站..." id="endNode">
+            </div>
+            <br>
+            <button type="button" class="btn btn-primary btn-lg btn-block" id="dc_search">导乘查询</button>
+            <br>
+        </form>
+       </div>
+    </div>
+    <div id="container"></div>
+    <div class="container" style="display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;margin-bottom:30px;">
+        <div id="panel"></div>
+    </div>
+</body>

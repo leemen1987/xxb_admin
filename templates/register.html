@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>信息管理系统 注册</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/static/register/css/register.css">
+        <link rel="stylesheet" href="/static/register/css/register-form-elements.css">
+
+
+    </head>
+
+    <body>
+
+        <!-- Content -->
+        <div class="top-content">
+        	
+            <div class="inner-bg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-2 text">
+                        	<a class="logo" href="index.html"></a>
+                            <h1><strong>开平公汽信息管理系统</strong> 注册</h1>
+                            <div class="description">
+                            	<p>测试阶段，有问题请联系管理员</p>
+                            </div>
+                            <div class="top-big-link">
+                            	<a class="btn btn-link-1 launch-modal" href="#" data-modal-id="modal-register">点击注册</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- MODAL -->
+        <div class="modal fade" id="modal-register" tabindex="-999" role="dialog" aria-labelledby="modal-register-label" aria-hidden="true">
+        	<div class="modal-dialog">
+        		<div class="modal-content">
+        			
+        			<div class="modal-header">
+        				<button type="button" class="close" data-dismiss="modal">
+        					<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+        				</button>
+        				<h3 class="modal-title" id="modal-register-label">注册</h3>
+        				<p>请填写注册信息:</p>
+        			</div>
+        			
+        			<div class="modal-body">
+        				
+	                    <form role="form" action="" method="post" class="registration-form">
+	                    	<div class="form-group">
+	                    		<label class="sr-only" for="username">用户名</label>
+	                        	<input type="text" name="username" placeholder="请输入用户名..." class="form-first-name form-control" id="form-first-name">
+	                        </div>
+	                        <div class="form-group">
+	                        	<label class="sr-only" for="password">登陆密码</label>
+	                        	<input type="text" name="password" placeholder="请输入密码..." class="form-last-name form-control" id="form-last-name">
+	                        </div>
+	                        <div class="form-group">
+	                        	<label class="sr-only" for="re_password">确认密码</label>
+	                        	<input type="text" name="re_password" placeholder="请输入确认密码..." class="form-email form-control" id="form-email">
+	                        </div>
+	                        <div class="form-group">
+	                        	<label class="sr-only" for="form-email">手机号码</label>
+	                        	<input type="text" name="form-email" placeholder="请输入手机号码..." class="form-email form-control" id="form-email">
+	                        </div>
+	                        <button type="submit" class="btn">提交注册</button>
+	                    </form>
+	                    
+        			</div>
+        			
+        		</div>
+        	</div>
+        </div>
+
+
+        <!-- Javascript -->
+        <script src="/static/jquery/jquery.min.js"></script>
+        <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/static/js/reg-jquery.backstretch.min.js"></script>
+        <script src="/static/js/reg.js"></script>
+        
+        <!--[if lt IE 10]>
+            <script src="/static/js/reg-placeholder.js"></script>
+        <![endif]-->
+
+    </body>
+
+</html>

@@ -1,0 +1,173 @@
+{%  extends 'index.html' %}
+
+{% block page-css %}
+    <link rel="stylesheet" href="/static/fullcalendar/css/fullcalendar.css">
+    <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+{% endblock %}
+
+{% block page-js %}
+    <script type="text/javascript" src="/static/js/moment.min.js"></script>
+    <script type="text/javascript" src="/static/js/fullcalendar.min.js"></script>
+	<script type="text/javascript" src="/static/js/locale-all.js"></script>
+    <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+            var initialLocaleCode = 'zh-cn'; //中文
+        $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay,listMonth'
+            },
+            locale: initialLocaleCode,
+            themeSystem: 'bootstrap3',
+            contentHeight: 'auto',
+            timeFormat:'H:mm',
+            fixedWeekCount:false,
+            //displayEventTime: false,
+            displayEventEnd: true,
+            eventLimit: 3,
+            eventLimitText: '更多',
+            buttonIcons: false, // show the prev/next text
+            weekNumbers: false,
+            navLinks: true, // can click day/week names to navigate views
+            dayClick: function(date, jsEvent, view) {
+                $('#myModal').modal('show');
+                    $('#classtime').val(date.format());
+                {#alert('Clicked on: ' + date.format());#}
+                {#alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);#}
+                {#alert('Current view: ' + view.name);#}
+            },
+            eventClick: function(calEvent, jsEvent, view) {
+                $('#myModal2').modal('show');
+                $('#del_val_id').val(calEvent.id);
+            },
+            editable: true,
+            events:"/get_list/"
+        });
+
+    });
+    </script>
+    <script type="text/javascript">
+        function get_val(){
+                        $('#myModal').modal('hide');
+                        var local_name = $('#classlocal').val();
+                        var date_val = $('#classtime').val();
+                        var end_time = $('#end_time').val();
+                        var start_time = $('#start_time').val();
+                        $.ajax({
+                            url: "/manage-event/",
+                            type: 'GET',
+                            data:{'title':local_name,'start':date_val,'start_time':start_time,'end_time':end_time},
+                            cache: false,
+                            success: function (response) {
+                                var event_arr = $.parseJSON(response);
+                                $('#calendar').fullCalendar('removeEvents');
+                                $('#calendar').fullCalendar('addEventSource', event_arr);
+                                $('#calendar').fullCalendar('rerenderEvents' );
+                            },
+                        })
+                     }
+        function del_val() {
+            $('#myModal2').modal('hide');
+            var del_var = $('#del_val_id').val();
+            $.ajax({
+                url:"/del_val/",
+                type: "GET",
+                data: {'del_val':del_var},
+                cache: false,
+                success: function (response) {
+                    var event_arr = $.parseJSON(response);
+                    $('#calendar').fullCalendar('removeEvents');
+                    $('#calendar').fullCalendar('addEventSource', event_arr);
+                    $('#calendar').fullCalendar('rerenderEvents' );
+                },
+            })
+        }
+    </script>
+
+{% endblock %}
+
+{% block today_class %}
+
+    <div class="container-fluid">
+        <div class="row" style="padding-top:20px;padding-bottom:20px;">
+            <div class="col-sm-10 col-sm-offset-1">
+                <div id="calendar"></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="myModalLabel">课程录入</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                      <div class="form-group">
+                        <label for="classlocal" class="col-sm-2 control-label">上课地点</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="classlocal" value="">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="classtime" class="col-sm-2 control-label">日期</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="classtime" value="">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="start_time" class="col-sm-2 control-label">上课时间</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control form_datetime" id="start_time" value="" readonly>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="end_time" class="col-sm-2 control-label" readonly>下课时间</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control form_datetime" id="end_time" value="" readonly>
+                        </div>
+                      </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" onclick="get_val()">提交更改</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="del_confirm"><span class="glyphicon glyphicon-exclamation-sign" style="color: rgb(255, 0, 0);"></span> 删除确认</h4>
+                </div>
+                <div class="modal-body text-center">
+                    <h4><span class="glyphicon glyphicon-remove" style="color: rgb(255, 0, 0);"></span> 是否删除该数据？</h4><input type="hidden" id="del_val_id" value="" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="del_val()">确定</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <script type="text/javascript">
+        $(".form_datetime").datetimepicker({
+            language:"zh-CN",
+            startView:1,
+            minView:0,
+            minuteStep:5,
+            format: "hh:ii",
+            autoclose: true,
+            todayBtn: false,
+            pickerPosition: "bottom-left"
+        });
+    </script>
+{% endblock %}
+

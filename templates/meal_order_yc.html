@@ -1,0 +1,152 @@
+{% extends 'index.html' %}
+{% block page-css %}
+    <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+{% endblock %}
+{% block page-js %}
+    <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+{% endblock %}
+{% block meal_order_yc %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">报餐统计</h3>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:20px;">
+            <form action="/count_order_yc" method="post" class="bs-example bs-example-form">
+                <div class="col-sm-2">
+                    <select class="form-control" id="type" name="line">
+
+                    </select>
+                </div>
+                <div class="col-sm-2" style="padding-bottom: 2px;">
+                    <input type="word" class="form-control form_datetime" style="background-color: #ECECEC"
+                           id="day1" name="date" {% if date  %}placeholder={{ date }}{% else %}placeholder="请选择结束日期"{% endif %} readonly>
+                </div>
+
+                <div class="col-sm-1" style="padding-bottom: 2px;">
+                    <button type="submit" class="btn btn-primary" id="btnsearch">🔍查询</button>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h3 style="display: flex;flex-direction: row;align-items: center;align-content: center;">查询结果
+                            <button type="button" class="btn btn-primary" id="export_excel" style="margin-left: 10px;">
+                                导出EXCEL
+                            </button>
+                        </h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>报餐日期</th>
+                                    <th>姓名</th>
+                                    <th>线路</th>
+                                    <th>早餐</th>
+                                    <th>午餐</th>
+                                    <th>晚餐</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for ret in result %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td class="dd{{ forloop.counter }}">{{ ret.order_date|date:"Y-m-d" }}</td>
+                                        <td>{{ ret.uid.user_name }}</td>
+                                        <td>{{ ret.uid.line }}</td>
+                                        <td>{{ ret.breakfast }}</td>
+                                        <td>{{ ret.lunch }}</td>
+                                        <td>{{ ret.dinner }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td><strong>早餐总数</strong></td>
+                                    <td>{{ b_result }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>午餐总数</strong></td>
+                                    <td>{{ l_result }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>晚餐总数</strong></td>
+                                    <td>{{ d_result }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(".form_datetime").datetimepicker({
+            language: "zh-CN",
+            startView: 3,
+            minView: 2,
+            minuteStep: 5,
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayBtn: false,
+            pickerPosition: "bottom-left",
+        });
+    </script>
+    <script type="text/javascript">
+        function c_select() {
+            $.ajax({
+                type: "GET",
+                async: false,     //设为同步请求（异步加载的话后面的遍历方法获取不到option）
+                url: "/c_select_yc",//获取option值得方法返回LIST<String>类型 
+                success: function (data) {
+                    $("#type").append("<option value='全部'>全部</option>")
+                    var j_data = JSON.parse(data)
+                    for (var i in j_data) {        //遍历输出LIST添加为option     
+                        $("#type").append("<option value='" + j_data[i] + "'>" + j_data[i] + "</option>");
+                    }
+                }
+            });
+        }
+
+
+        $(function () {
+            c_select();
+
+            if (sessionStorage.getItem('type')) {  //刷新保留select值
+                $("#type option").eq(sessionStorage.getItem('type')).prop('selected', true);
+            }
+            $("#type").on('change', function () {
+                sessionStorage.setItem('type', $('option:selected', this).index());
+            });
+
+
+            $("#export_excel").click(function () {
+                if ($(".dd1").text()) {
+                    var url = '/export_excel_yc';
+                    var params = {
+                        'select': $('#type option:selected').val(),
+                        's_date': $(".dd1").text()
+                    };
+                    var form = $('<form method="POST" action="' + url + '">');
+                    $.each(params, function (k, v) {
+                        form.append($('<input type="hidden" name="' + k +
+                            '" value="' + v + '">'));
+                    });
+                    $('body').append(form);
+                    form.submit();
+                    form.remove();
+                } else {
+                    alert("请先进行查询操作")
+                }
+            });
+
+
+        });
+    </script>
+{% endblock %}
+

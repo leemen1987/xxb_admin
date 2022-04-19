@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="leemen">
+    <meta name="author" content="leemen">
+
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'images/leemen_ico.ico' %}" type="image/x-icon">
+
+    <title>开平市公共汽车总公司</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- jQuery -->
+    <script src="/static/fileinput/js/jquery-3.3.1.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+
+        $(function () {
+            var height = $("#nav").height();
+            $("#my_group").css("margin-top", height + 10 + 'px')
+        });
+    </script>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" id="nav">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target="#example-navbar-collapse">
+                    <span class="sr-only">切换导航</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#" style="color: white"><strong>开平公交投诉/建议</strong></a>
+            </div>
+            <div class="collapse navbar-collapse" id="example-navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/service?openid={{ openid }}">投诉/建议</a></li>
+                    <li class="active"><a href="#">受理进度</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% if service_data == 'empty' %}
+        <div class="row text-center" style="margin-top: 25%;">
+            <p><code>提示</code> 您无提交任何投诉或建议。</p>
+        </div>
+    {% else %}
+        {% for i in service_data %}
+            <div class="list-group" id="my_group">
+                <a href="#" class="list-group-item active">
+                    <h4 class="list-group-item-heading">
+                        系统编号:{{ i.system_id }}
+                    </h4>
+                </a>
+                <a href="#" class="list-group-item">
+                    <h4 class="list-group-item-heading" onclick="">
+                        投诉/建议内容:{{ i.opinion }}
+                    </h4>
+                    <p class="list-group-item-text">
+                        公交线路:{{ i.line }} &nbsp 车辆编号:{{ i.car_num }} &nbsp 事发时间:{{ i.happen_date }} <br>
+                        上车站点:{{ i.start_stop }} &nbsp 下车站点:{{ i.end_stop }}
+                    </p>
+                </a>
+                {% if i.reply %}
+                    <a href="#" class="list-group-item">
+                        <h4 class="list-group-item-heading" style="color: red">
+                            我司回复:{{ i.reply }}
+                        </h4>
+                    </a>
+                {% else %}
+                    <a href="#" class="list-group-item">
+                        <h4 class="list-group-item-heading" style="color: red">
+                            请等待我司回复
+                        </h4>
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+    {% endif %}
+
+</div>
+</body>
+</html>

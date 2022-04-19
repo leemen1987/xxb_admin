@@ -1,0 +1,122 @@
+{% extends 'index.html' %}
+{% block page-css %}
+    <link rel="stylesheet" href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css">
+{% endblock %}
+{% block page-js %}
+    <script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+{% endblock %}
+{% block finance_count_yc %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">财务统计</h3>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:20px;">
+            <form action="/finance_count_yc" method="post" class="bs-example bs-example-form">
+                <div class="col-sm-2" style="padding-bottom: 2px;">
+                    <input type="word" class="form-control form_datetime" style="background-color: #ECECEC"
+                           id="day1" name="date_from"
+                           {% if date_from %}placeholder={{ date_from }}{% else %}placeholder="请选择开始日期"{% endif %}
+                           readonly>
+                </div>
+                <div class="col-sm-2" style="padding-bottom: 2px;">
+                    <input type="word" class="form-control form_datetime" style="background-color: #ECECEC"
+                           id="day2" name="date_to"
+                           {% if date_to %}placeholder={{ date_to }}{% else %}placeholder="请选择结束日期"{% endif %} readonly>
+                </div>
+                <div class="col-sm-1" style="padding-bottom: 2px;">
+                    <button type="submit" class="btn btn-primary" id="btnsearch">🔍查询</button>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h3 style="display: flex;flex-direction: row;align-items: center;align-content: center;">查询结果
+                            <button type="button" class="btn btn-primary" id="export_excel_finance"
+                                    style="margin-left: 10px;">
+                                导出EXCEL
+                            </button>
+                        </h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>线路</th>
+                                    <th>早餐</th>
+                                    <th>午餐</th>
+                                    <th>晚餐</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for ret in result_count %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ ret.uid__user_name }}</td>
+                                        <td>{{ ret.uid__line }}</td>
+                                        <td>{{ ret.b_count | floatformat:-1 }}</td>
+                                        <td>{{ ret.l_count | floatformat:-1 }}</td>
+                                        <td>{{ ret.d_count | floatformat:-1 }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td><strong>早餐合计</strong></td>
+                                    <td>{{ all_b_count }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>午餐合计</strong></td>
+                                    <td>{{ all_l_count }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>晚餐合计</strong></td>
+                                    <td>{{ all_d_count }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(".form_datetime").datetimepicker({
+            language: "zh-CN",
+            startView: 3,
+            minView: 2,
+            minuteStep: 5,
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayBtn: false,
+            pickerPosition: "bottom-left",
+            setStartDate: "2019-10-1",
+            setEndDate: "2019-10-30",
+        });
+        $("#export_excel_finance").click(function () {
+            if ($("#day1").attr('placeholder')!=='请选择开始日期') {
+                var url = '/export_excel_finance_yc';
+                var params = {
+                    'date_from': $("#day1").attr('placeholder'),
+                    'date_to': $("#day2").attr('placeholder'),
+                }
+                var form = $('<form method="POST" action="' + url + '">');
+                $.each(params, function (k, v) {
+                    form.append($('<input type="hidden" name="' + k +
+                        '" value="' + v + '">'));
+                });
+                $('body').append(form);
+                form.submit();
+                form.remove();
+            } else {
+                alert("请先进行查询操作")
+            }
+        });
+    </script>
+{% endblock %}
+
