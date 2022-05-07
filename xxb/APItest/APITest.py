@@ -14,10 +14,10 @@ db = pymysql.connect(host='127.0.0.1', port=server.local_bind_port, user='readon
                      db='td_busonlinedisp845')
 print(db)
 cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
-sql = "SELECT * FROM `dh_busstatusinfoday`"
+sql = "SELECT * FROM `dh_busstatusinfoday` WHERE memo = '19177' AND DATE_FORMAT(newdate,'%Y%m%d') = '20220503'"
 cursor.execute(sql)
 data = cursor.fetchall()
-print(data)
+print(data, type(data))
 cursor.close()
 db.close()
 # reqid = str(uuid.uuid1())
