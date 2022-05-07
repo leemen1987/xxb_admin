@@ -27,7 +27,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['106.13.209.112', 'www.leemen.top', 'instance-48a5ar40:8000', 'localhost', '0.0.0.0:8000', '127.0.0.1','*']
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 # Application definition
 
 INSTALLED_APPS = [
@@ -84,9 +84,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'xxb',
         'HOST': '127.0.0.1',
-        'PORT': 3306,
+        'PORT': 1024,
         'USER': 'root',
-        'PASSWORD': '26348464',
+        'PASSWORD': 'a26348464',
     }
 }
 
@@ -129,7 +129,7 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
+    os.path.join(BASE_DIR, 'static/')
 ]
 
 # Django用户上传的都叫media文件
