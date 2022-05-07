@@ -3,15 +3,31 @@ import requests
 import json
 import datetime
 import uuid
+import pymysql
+from sshtunnel import SSHTunnelForwarder
 
+server = SSHTunnelForwarder(ssh_address_or_host=('113.107.137.16', 1133), ssh_username='readonly',
+                                ssh_password='LYPlyp123456', remote_bind_address=('127.0.0.1', 3308))
+server.start()
+
+db = pymysql.connect(host='127.0.0.1', port=server.local_bind_port, user='readonly', password='readonly',
+                     db='td_busonlinedisp845')
+print(db)
+cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
+sql = "SELECT * FROM `dh_busstatusinfoday`"
+cursor.execute(sql)
+data = cursor.fetchall()
+print(data)
+cursor.close()
+db.close()
 # reqid = str(uuid.uuid1())
 # headers = {'Accept-Charset': 'utf-8', 'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'}
 # publicrequest = {
-#     "protover":"1.0","signdata":"","servicecode":"00000030001","sysid":"91182F78-B3CF-43BF-AF5B-D1E276792296",
-#     "requesttime":"","reserve":"","servicever":"1.0","message":"","reqid":reqid
-#     }
-# body = {"SysId":"91182F78-B3CF-43BF-AF5B-D1E276792296","AccountName":"PTJ010","Password":"m86y2b"}
-# data = {"publicrequest":publicrequest, "body":body}
+#     "protover": "1.0", "signdata": "", "servicecode": "00000030001", "sysid": "91182F78-B3CF-43BF-AF5B-D1E276792296",
+#     "requesttime": "", "reserve": "", "servicever": "1.0", "message": "", "reqid": reqid
+# }
+# body = {"SysId": "91182F78-B3CF-43BF-AF5B-D1E276792296", "AccountName": "PTJ010", "Password": "m86y2b"}
+# data = {"publicrequest": publicrequest, "body": body}
 # time = datetime.datetime.now().strftime("%Y%m%d%H%M%S000")
 # data['publicrequest']['requesttime'] = time
 # ret = requests.post('http://103.56.76.162:17008/api/ServiceGateway/DataService', headers=headers, json=data)
@@ -157,34 +173,34 @@ import uuid
 # with open('xxx.xls', 'wb') as code:
 #     code.write(get_data.content)
 
-headers_one = {'Content-type': 'application/x-www-form-urlencoded'}
-headers = {'Content-type': 'application/json;charset=UTF-8'}
-body = {"userName": "transmitDev", "passWord": "dR3QG3gI831dFpZi"}
-# body1 = {"RoadID": ''}
-get_jsessionid = requests.post('http://113.107.137.16:58088/app/login', headers=headers_one, data=body)
-jsessionid = get_jsessionid.json()['data']
-# ret = requests.post('http://113.107.137.16:58088/app/getAppStatusInfoData;jsessionid=' + jsessionid, headers=headers, json=body1)   #站点接口
-ret = requests.post('http://113.107.137.16:58088/app/getAppStatusInfoData;jsessionid=' + jsessionid, headers=headers)  # 线路接口
-data = ret.json()
-# bus_stop = []
-# roadtype = '0'
-# if roadtype == '0':
-#     for i in data['data']:
-#         gps_info_item = {}
-#         busstate = i['BusState']
-#         roadtype_info = i['RoadType']
-#         gps_info_item['id'] = int(i['SiteId'])
-#         if busstate == '1':
-#             if roadtype_info == '0' or roadtype_info == '2':
-#                 bus_stop.append(gps_info_item)
-# if roadtype == '1':
-#     for i in data['data']:
-#         gps_info_item = {}
-#         busstate = i['BusState']
-#         roadtype_info = i['RoadType']
-#         gps_info_item['id'] = int(i['SiteId'])
-#         if busstate == '1':
-#             if roadtype_info == '1' or roadtype_info == '3':
-#                 bus_stop.append(gps_info_item)
-# print(bus_stop)
-print(json.dumps(data, ensure_ascii=False, indent=2))
+# headers_one = {'Content-type': 'application/x-www-form-urlencoded'}
+# headers = {'Content-type': 'application/json;charset=UTF-8'}
+# body = {"userName": "transmitDev", "passWord": "dR3QG3gI831dFpZi"}
+# # body1 = {"RoadID": ''}
+# get_jsessionid = requests.post('http://113.107.137.16:58088/app/login', headers=headers_one, data=body)
+# jsessionid = get_jsessionid.json()['data']
+# # ret = requests.post('http://113.107.137.16:58088/app/getAppStatusInfoData;jsessionid=' + jsessionid, headers=headers, json=body1)   #站点接口
+# ret = requests.post('http://113.107.137.16:58088/app/getAppStatusInfoData;jsessionid=' + jsessionid, headers=headers)  # 线路接口
+# data = ret.json()
+# # bus_stop = []
+# # roadtype = '0'
+# # if roadtype == '0':
+# #     for i in data['data']:
+# #         gps_info_item = {}
+# #         busstate = i['BusState']
+# #         roadtype_info = i['RoadType']
+# #         gps_info_item['id'] = int(i['SiteId'])
+# #         if busstate == '1':
+# #             if roadtype_info == '0' or roadtype_info == '2':
+# #                 bus_stop.append(gps_info_item)
+# # if roadtype == '1':
+# #     for i in data['data']:
+# #         gps_info_item = {}
+# #         busstate = i['BusState']
+# #         roadtype_info = i['RoadType']
+# #         gps_info_item['id'] = int(i['SiteId'])
+# #         if busstate == '1':
+# #             if roadtype_info == '1' or roadtype_info == '3':
+# #                 bus_stop.append(gps_info_item)
+# # print(bus_stop)
+# print(json.dumps(data, ensure_ascii=False, indent=2))
