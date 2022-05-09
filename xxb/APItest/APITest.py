@@ -17,9 +17,10 @@ cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
 sql = "SELECT * FROM `dh_busstatusinfoday` WHERE memo = '19177' AND DATE_FORMAT(newdate,'%Y%m%d') = '20220503'"
 cursor.execute(sql)
 data = cursor.fetchall()
-print(data, type(data))
+print(data, type(data[0]))
 cursor.close()
 db.close()
+
 # reqid = str(uuid.uuid1())
 # headers = {'Accept-Charset': 'utf-8', 'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'}
 # publicrequest = {
