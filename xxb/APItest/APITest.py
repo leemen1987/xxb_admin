@@ -6,32 +6,32 @@ import uuid
 import pymysql
 from sshtunnel import SSHTunnelForwarder
 
-server = SSHTunnelForwarder(ssh_address_or_host=('113.107.137.16', 1133), ssh_username='readonly',
-                                ssh_password='LYPlyp123456', remote_bind_address=('127.0.0.1', 3308))
-server.start()
-
-db = pymysql.connect(host='127.0.0.1', port=server.local_bind_port, user='readonly', password='readonly',
-                     db='td_busonlinedisp845')
-print(db)
-cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
-sql = "SELECT * FROM `dh_busstatusinfoday` WHERE memo = '19177' AND DATE_FORMAT(newdate,'%Y%m%d') = '20220503'"
-cursor.execute(sql)
-data = cursor.fetchall()
-print(data, type(data[0]))
-cursor.close()
-db.close()
-
+# server = SSHTunnelForwarder(ssh_address_or_host=('113.107.137.16', 1133), ssh_username='readonly',
+#                                 ssh_password='LYPlyp123456', remote_bind_address=('127.0.0.1', 3308))
+# server.start()
+#
+# db = pymysql.connect(host='127.0.0.1', port=server.local_bind_port, user='readonly', password='readonly',
+#                      db='td_busonlinedisp845')
+# print(db)
+# cursor = db.cursor(cursor=pymysql.cursors.DictCursor)
+# sql = "SELECT * FROM `dh_busstatusinfoday` WHERE memo = '19177' AND DATE_FORMAT(newdate,'%Y%m%d') = '20220503'"
+# cursor.execute(sql)
+# data = cursor.fetchall()
+# print(data, type(data[0]))
+# cursor.close()
+# db.close()
+#
 # reqid = str(uuid.uuid1())
 # headers = {'Accept-Charset': 'utf-8', 'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'}
 # publicrequest = {
 #     "protover": "1.0", "signdata": "", "servicecode": "00000030001", "sysid": "91182F78-B3CF-43BF-AF5B-D1E276792296",
 #     "requesttime": "", "reserve": "", "servicever": "1.0", "message": "", "reqid": reqid
 # }
-# body = {"SysId": "91182F78-B3CF-43BF-AF5B-D1E276792296", "AccountName": "PTJ010", "Password": "m86y2b"}
+# body = {"SysId": "91182F78-B3CF-43BF-AF5B-D1E276792296", "AccountName": "PTJ010", "Password": "mb9p2c"}
 # data = {"publicrequest": publicrequest, "body": body}
 # time = datetime.datetime.now().strftime("%Y%m%d%H%M%S000")
 # data['publicrequest']['requesttime'] = time
-# ret = requests.post('http://103.56.76.162:17008/api/ServiceGateway/DataService', headers=headers, json=data)
+# ret = requests.post('http://103.56.76.162:17007/api/ServiceGateway/DataService', headers=headers, json=data)
 # jsonstr = ret.json()
 # print(data)
 # print(jsonstr)
@@ -139,40 +139,40 @@ db.close()
 # print(wx_openid.json())
 
 # 获取五邑通刷卡数据
-# session = requests.session()
-# url = 'http://219.130.135.56:12011/Account/Login'
-# headers = {
-#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3870.400 QQBrowser/10.8.4405.400'}
-# data = {
-#     'UserName': 'kpgqhjt', 'Password': '123456', 'RememberMe': 'false'
-# }
-# data = session.post(url, headers=headers, data=data, allow_redirects=False)
-# cookies = data.cookies
-# cookies_data = requests.utils.dict_from_cookiejar(cookies)
-# print(cookies_data)
-# headers_cookies = {
-#     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-#     'Accept-Encoding': 'gzip, deflate',
-#     'Accept-Language': 'zh-CN,zh;q=0.9',
-#     'Cache-Control': 'max-age=0',
-#     'Connection': 'keep-alive',
-#     'Content-Length': '161',
-#     'Content-Type': 'application/x-www-form-urlencoded',
-#     'Cookie': 'ASP.NET_SessionId=' + cookies_data['ASP.NET_SessionId'] + '; ' + '.ASPXAUTH=' + cookies_data['.ASPXAUTH'],
-#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3870.400 QQBrowser/10.8.4405.400'
-# }
-# from_data = {
-#     'reprotName': '车辆综合交易汇总表',
-#     'merchant_id': '0005',
-#     'qs_date': '2022-01-09',
-#     'zz_date': '2022-01-09',
-#     'cardtype_id': '2'
-# }
-# exrport_data_url = 'http://219.130.135.56:12011/JiangmenSearch/Exreport_XF_SynthHZ_Report'
-# get_data = session.post(exrport_data_url, headers=headers_cookies, data=from_data, timeout=600)
-# print(get_data.status_code)
-# with open('xxx.xls', 'wb') as code:
-#     code.write(get_data.content)
+session = requests.session()
+url = 'http://219.130.135.56:12011/Account/Login'
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3870.400 QQBrowser/10.8.4405.400'}
+data = {
+    'UserName': 'kpgqhjt', 'Password': '123456', 'RememberMe': 'false'
+}
+data = session.post(url, headers=headers, data=data, allow_redirects=False)
+cookies = data.cookies
+cookies_data = requests.utils.dict_from_cookiejar(cookies)
+print(cookies_data)
+headers_cookies = {
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'Cache-Control': 'max-age=0',
+    'Connection': 'keep-alive',
+    'Content-Length': '161',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Cookie': 'ASP.NET_SessionId=' + cookies_data['ASP.NET_SessionId'] + '; ' + '.ASPXAUTH=' + cookies_data['.ASPXAUTH'],
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3870.400 QQBrowser/10.8.4405.400'
+}
+from_data = {
+    'reprotName': '车辆综合交易汇总表',
+    'merchant_id': '0005',  # 商户：开平市公共汽车总公司 0005
+    'qs_date': '2022-05-01',
+    'zz_date': '2022-05-31',
+    'cardtype_id': ''  # 默认不填，普通卡0，学生卡1，免费长者卡2，半价长者卡3,...
+}
+exrport_data_url = 'http://219.130.135.56:12011/JiangmenSearch/Exreport_XF_SynthHZ_Report'
+get_data = session.post(exrport_data_url, headers=headers_cookies, data=from_data, timeout=600)
+print(get_data.status_code)
+with open('xxx.xls', 'wb') as code:
+    code.write(get_data.content)
 
 # headers_one = {'Content-type': 'application/x-www-form-urlencoded'}
 # headers = {'Content-type': 'application/json;charset=UTF-8'}
